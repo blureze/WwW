@@ -61,7 +61,7 @@ public class CallActivity extends AppCompatActivity {
                 if(state==TelephonyManager.CALL_STATE_OFFHOOK)
                 {
                     Toast.makeText(getApplicationContext(),"Phone is Currently in A call", Toast.LENGTH_LONG).show();
-                    
+
                 }
 
 
