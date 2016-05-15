@@ -1,4 +1,4 @@
-package main;
+package com.example.user.www;
 
 import android.Manifest;
 import android.content.Context;
@@ -16,8 +16,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
-
-import com.example.user.www.R;
 
 import java.lang.reflect.Method;
 import java.util.Timer;
