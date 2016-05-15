@@ -26,14 +26,18 @@
             android:textStyle="bold"
             android:typeface="sans"
             android:layout_gravity="center_vertical"
-            android:autoText="false"
+            android:clickable="true"
             android:gravity="center"
             android:layout_weight="1" />
 
     </LinearLayout>
-    <Button
-        android:layout_width="70dp"
-        android:layout_height="50dp"
-        android:id="@+id/locate"
-        android:layout_gravity="center_vertical" />
+    <ImageButton
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:id="@+id/person_btn"
+        android:text="Find Me"
+        android:layout_gravity="center_vertical"
+        android:textSize="10dp"
+        android:src="@mipmap/find_me"
+        android:background="@mipmap/find_me" />
 </LinearLayout>
