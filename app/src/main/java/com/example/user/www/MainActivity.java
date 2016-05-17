@@ -7,8 +7,8 @@ import android.view.View;
 import android.widget.Button;
 
 public class MainActivity extends AppCompatActivity {
-    private Button call_btn;
-    private Button show_btn;
+
+    private Button call_btn, contact_btn, show_btn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,7 +32,15 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(call_intent);
             }
         });
+        contact_btn = (Button) findViewById(R.id.contact_button);
+        contact_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent call_intent = new Intent(MainActivity.this, ContactActivity.class);
+                startActivity(call_intent);
+            }
+        });
     }
 
-    
 }
+
