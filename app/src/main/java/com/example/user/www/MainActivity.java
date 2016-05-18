@@ -8,7 +8,7 @@ import android.widget.Button;
 
 public class MainActivity extends AppCompatActivity {
 
-    private Button call_btn, contact_btn;
+    private Button call_btn, contact_btn, show_btn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,6 +20,15 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent call_intent = new Intent(MainActivity.this, CallActivity.class);
+                startActivity(call_intent);
+            }
+        });
+
+        show_btn = (Button) findViewById(R.id.showmapbutton);
+        show_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent call_intent = new Intent(MainActivity.this, MapActivity.class);
                 startActivity(call_intent);
             }
         });
