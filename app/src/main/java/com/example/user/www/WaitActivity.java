@@ -1,59 +1,26 @@
 package com.example.user.www;
 
-import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.Binder;
 import android.os.IBinder;
-import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
-import android.view.View;
-import android.widget.Button;
+import android.widget.Toast;
 
 import java.lang.reflect.Method;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class MainActivity extends AppCompatActivity {
-
-    private Button call_btn, contact_btn, show_btn;
+public class WaitActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
-        call_btn = (Button) findViewById(R.id.phone_call_button);
-        call_btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent call_intent = new Intent(MainActivity.this, CallActivity.class);
-                startActivity(call_intent);
-            }
-        });
-
-        show_btn = (Button) findViewById(R.id.showmapbutton);
-        show_btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent call_intent = new Intent(MainActivity.this, MapActivity.class);
-                startActivity(call_intent);
-            }
-        });
-        contact_btn = (Button) findViewById(R.id.contact_button);
-        contact_btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent call_intent = new Intent(MainActivity.this, ContactActivity.class);
-                startActivity(call_intent);
-            }
-        });
+        setContentView(R.layout.activity_wait);
     }
 
     private class Receive {
@@ -66,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
         private String phone_number;
 
         public Receive() {
-            /* count the calling time */
+            /*count the calling time*/
             TelephonyManager tm = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
             //final Chronometer myChronometer = (Chronometer)findViewById(R.id.chronometer);
             PhoneStateListener callStateListener = new PhoneStateListener() {
@@ -77,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
                     String number = incomingNumber;
                     if(state==TelephonyManager.CALL_STATE_RINGING)
                     {
-                        // Toast.makeText(getApplicationContext(), "Phone Is Ringing", Toast.LENGTH_LONG).show();
+                         Toast.makeText(getApplicationContext(), "Phone Is Ringing", Toast.LENGTH_LONG).show();
                         startTimer(ringing);
                         lastState = TelephonyManager.CALL_STATE_RINGING;
                     }
@@ -92,7 +59,6 @@ public class MainActivity extends AppCompatActivity {
                         //Toast.makeText(getApplicationContext(),"phone is neither ringing nor in a call", Toast.LENGTH_LONG).show();
                         if(lastState == TelephonyManager.CALL_STATE_RINGING) {
                             stopTimer(ringing);
-                            /* get GPS*/
                         }
 //                        else if(lastState == TelephonyManager.CALL_STATE_OFFHOOK) {
 //                            stopTimer(dialing);
@@ -140,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
                             Log.d("outgoing", "hang up the phone");
                             // hang up the phone
                             hangup();
-                            Intent waiting = new Intent(MainActivity.this, WaitActivity.class);
+                            Intent waiting = new Intent(WaitActivity.this, WaitActivity.class);
                             startActivity(waiting);
                         }
                     }
@@ -155,6 +121,9 @@ public class MainActivity extends AppCompatActivity {
                     Log.d("incoming", String.valueOf(counter));     // 2 seconds delay
                     incoming_timer.cancel();
                     incoming_timer = null;
+
+                    /* Add messages */
+
                 }
             }
             else if(state == dialing) {
@@ -202,4 +171,5 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 }
+
 
