@@ -16,6 +16,8 @@ import android.util.Log;
  */
 public class MapActivity extends AppCompatActivity implements OnMapReadyCallback {
 
+    GPSLocation myLocation;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -25,6 +27,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment =
                 (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+        myLocation = new GPSLocation(this);
     }
 
     /**
@@ -34,6 +37,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
      */
     @Override
     public void onMapReady(GoogleMap map) {
-        map.addMarker(new MarkerOptions().position(new LatLng(24, 121)).title("Marker"));
+        //map.addMarker(new MarkerOptions().position(new LatLng(24, 121)).title("Marker"));
+        map.addMarker(new MarkerOptions().position(new LatLng(myLocation.userLocation.latitude, myLocation.userLocation.longitude)).title("Marker"));
+
     }
 }
