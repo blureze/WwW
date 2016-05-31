@@ -9,18 +9,31 @@ import android.os.Bundle;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import org.w3c.dom.Text;
 
 import java.lang.reflect.Method;
 import java.util.Timer;
 import java.util.TimerTask;
 
+/***
+ * After the caller send the request to get another person's location, jumps to this Activity and wait for the response.
+ * The Activity will display the ringing time of each incoming phone call.
+ */
+
 public class WaitActivity extends AppCompatActivity {
+    private TextView response_tv;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_wait);
+
+        response_tv = (TextView) findViewById(R.id.text_response);
+
+        new Receive();
     }
 
     private class Receive {
@@ -31,8 +44,10 @@ public class WaitActivity extends AppCompatActivity {
         private TimerTask timerTask;
         private int counter = 0;
         private String phone_number;
+        private String response;
 
         public Receive() {
+            response = new String();
             /*count the calling time*/
             TelephonyManager tm = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
             //final Chronometer myChronometer = (Chronometer)findViewById(R.id.chronometer);
@@ -106,8 +121,6 @@ public class WaitActivity extends AppCompatActivity {
                             Log.d("outgoing", "hang up the phone");
                             // hang up the phone
                             hangup();
-                            Intent waiting = new Intent(WaitActivity.this, WaitActivity.class);
-                            startActivity(waiting);
                         }
                     }
                 };
@@ -119,11 +132,12 @@ public class WaitActivity extends AppCompatActivity {
             if(state == ringing) {
                 if (incoming_timer != null) {
                     Log.d("incoming", String.valueOf(counter));     // 2 seconds delay
+                    response = response + String.valueOf(counter) + '\n';
                     incoming_timer.cancel();
                     incoming_timer = null;
 
                     /* Add messages */
-
+                    response_tv.setText(response);
                 }
             }
             else if(state == dialing) {
