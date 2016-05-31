@@ -33,7 +33,7 @@
         <activity
             android:name=".ContactActivity"
             android:label="@string/title_activity_contact" />
-        
+
         <activity android:name=".WaitActivity" />
         <activity android:name=".SendActivity"></activity>
     </application>
