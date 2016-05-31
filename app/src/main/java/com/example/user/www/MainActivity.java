@@ -1,13 +1,9 @@
 package com.example.user.www;
 
-import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.Binder;
 import android.os.IBinder;
-import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.telephony.PhoneStateListener;
@@ -15,6 +11,9 @@ import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
+
+import com.skyfishjy.library.RippleBackground;
 
 import java.lang.reflect.Method;
 import java.util.Timer;
@@ -22,7 +21,9 @@ import java.util.TimerTask;
 
 public class MainActivity extends AppCompatActivity {
 
-    private Button call_btn, contact_btn, show_btn;
+    private Button call_btn, show_btn;
+    private ImageButton contact_btn;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,12 +47,17 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(call_intent);
             }
         });
-        contact_btn = (Button) findViewById(R.id.contact_button);
+        final RippleBackground rippleBackground = (RippleBackground)findViewById(R.id.content);
+        rippleBackground.startRippleAnimation();
+
+        contact_btn = (ImageButton) findViewById(R.id.contact_button);
         contact_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                rippleBackground.stopRippleAnimation();
                 Intent call_intent = new Intent(MainActivity.this, ContactActivity.class);
                 startActivity(call_intent);
+
             }
         });
     }
