@@ -39,6 +39,12 @@ import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 
+/***
+ *  This Activity is mainly for the caller.
+ * After the user(caller) select a person from the phonebook, the system will automatically make a phone call.
+ *  The phone call will automatically hang up after a period of time, and then jumps to WaitActivity to wait for response.
+ */
+
 public class ContactActivity extends Activity {
 
     private ListView lvPhone;
@@ -210,7 +216,7 @@ public class ContactActivity extends Activity {
         private final int ringing = 1;
         private final int dialing = 2;
 
-        private Button call_btn;
+        //        private Button call_btn;
         private Timer incoming_timer, outgoing_timer;
         private TimerTask timerTask;
         private int counter = 0;
@@ -250,7 +256,7 @@ public class ContactActivity extends Activity {
                     String number=incomingNumber;
                     if(state==TelephonyManager.CALL_STATE_RINGING)
                     {
-                        Toast.makeText(getApplicationContext(), "Phone Is Ringing", Toast.LENGTH_LONG).show();
+//                        Toast.makeText(getApplicationContext(), "Phone Is Ringing", Toast.LENGTH_LONG).show();
                         startTimer(ringing);
                         lastState = TelephonyManager.CALL_STATE_RINGING;
                     }
@@ -312,6 +318,8 @@ public class ContactActivity extends Activity {
                             Log.d("outgoing", "hang up the phone");
                             // hang up the phone
                             hangup();
+
+                            // jump to WaitActivity
                             Intent waiting = new Intent(ContactActivity.this, WaitActivity.class);
                             startActivity(waiting);
                         }
