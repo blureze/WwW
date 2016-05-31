@@ -13,60 +13,68 @@ import android.os.Bundle;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
-import android.view.View;
-import android.widget.Button;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import java.lang.reflect.Method;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class MainActivity extends AppCompatActivity {
-
-    private Button call_btn, contact_btn, show_btn;
+public class SendActivity extends AppCompatActivity {
+    private TextView send_tv;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_send);
 
-        call_btn = (Button) findViewById(R.id.phone_call_button);
-        call_btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent call_intent = new Intent(MainActivity.this, CallActivity.class);
-                startActivity(call_intent);
-            }
-        });
+        Intent intent = this.getIntent();
+        String phone_number = intent.getStringExtra("phone_number");    // get phone number
+        // get GPS -> ArrayList
 
-        show_btn = (Button) findViewById(R.id.showmapbutton);
-        show_btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent call_intent = new Intent(MainActivity.this, MapActivity.class);
-                startActivity(call_intent);
-            }
-        });
-        contact_btn = (Button) findViewById(R.id.contact_button);
-        contact_btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent call_intent = new Intent(MainActivity.this, ContactActivity.class);
-                startActivity(call_intent);
-            }
-        });
+        Call myCall = new Call(phone_number);
+        /***
+         *  for i = 0 to GPS.length
+         *    myCall.dial(gps.get(i));
+         */
     }
 
-    private class Receive {
+    private class Call {
         private final int ringing = 1;
         private final int dialing = 2;
 
+        //        private Button call_btn;
         private Timer incoming_timer, outgoing_timer;
         private TimerTask timerTask;
         private int counter = 0;
         private String phone_number;
+        private int calling_time;
 
-        public Receive() {
-            /* count the calling time */
+        public Call(String number) {
+            this.phone_number = number;
+        }
+
+        public void dial(int time) {
+            Intent myIntentDial;
+            calling_time = time;
+            // ACTION_CALL -> call the number directly without the dialer
+            // ACTION_DIAL -> ask users to select an application for calling
+            if (ActivityCompat.checkSelfPermission(SendActivity.this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+                // TODO: Consider calling
+                //    ActivityCompat#requestPermissions
+                // here to request the missing permissions, and then overriding
+                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                //                                          int[] grantResults)
+                // to handle the case where the user grants the permission. See the documentation
+                // for ActivityCompat#requestPermissions for more details.
+                myIntentDial = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + phone_number));
+                return;
+            } else {
+                myIntentDial = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + phone_number));
+            }
+            startActivity(myIntentDial);
+
+            /*after dialing, count the calling time*/
             TelephonyManager tm = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
             //final Chronometer myChronometer = (Chronometer)findViewById(R.id.chronometer);
             PhoneStateListener callStateListener = new PhoneStateListener() {
@@ -74,29 +82,28 @@ public class MainActivity extends AppCompatActivity {
                 public void onCallStateChanged(int state, String incomingNumber)
                 {
                     // TODO React to incoming call.
-                    String number = incomingNumber;
+                    String number=incomingNumber;
                     if(state==TelephonyManager.CALL_STATE_RINGING)
                     {
-                        // Toast.makeText(getApplicationContext(), "Phone Is Ringing", Toast.LENGTH_LONG).show();
+//                        Toast.makeText(getApplicationContext(), "Phone Is Ringing", Toast.LENGTH_LONG).show();
                         startTimer(ringing);
                         lastState = TelephonyManager.CALL_STATE_RINGING;
                     }
-//                    if(state==TelephonyManager.CALL_STATE_OFFHOOK)
-//                    {
-//                        //Toast.makeText(getApplicationContext(),"Phone is Currently in A call", Toast.LENGTH_LONG).show();
-//                        startTimer(dialing);
-//                        lastState = TelephonyManager.CALL_STATE_OFFHOOK;
-//                    }
+                    if(state==TelephonyManager.CALL_STATE_OFFHOOK)
+                    {
+                        //Toast.makeText(getApplicationContext(),"Phone is Currently in A call", Toast.LENGTH_LONG).show();
+                        startTimer(dialing);
+                        lastState = TelephonyManager.CALL_STATE_OFFHOOK;
+                    }
                     if(state==TelephonyManager.CALL_STATE_IDLE)
                     {
                         //Toast.makeText(getApplicationContext(),"phone is neither ringing nor in a call", Toast.LENGTH_LONG).show();
-                        if(lastState == TelephonyManager.CALL_STATE_RINGING) {
-                            stopTimer(ringing);
-                            /* get GPS*/
+                        if(lastState == TelephonyManager.CALL_STATE_OFFHOOK) {
+                            stopTimer(dialing);
                         }
-//                        else if(lastState == TelephonyManager.CALL_STATE_OFFHOOK) {
-//                            stopTimer(dialing);
-//                        }
+                        else if(lastState == TelephonyManager.CALL_STATE_RINGING) {
+                            stopTimer(ringing);
+                        }
                     }
                 }
             };
@@ -136,12 +143,10 @@ public class MainActivity extends AppCompatActivity {
                     public void run() {
                         counter++;
                         Log.d("outgoing", String.valueOf(counter));
-                        if(counter == 7) {     // 6 seconds delay
+                        if(counter == calling_time) {     // 6 seconds delay
                             Log.d("outgoing", "hang up the phone");
                             // hang up the phone
                             hangup();
-                            Intent waiting = new Intent(MainActivity.this, WaitActivity.class);
-                            startActivity(waiting);
                         }
                     }
                 };
@@ -202,4 +207,3 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 }
-

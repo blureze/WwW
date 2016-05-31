@@ -7,4 +7,5 @@
     <string name="callActivity">Call</string>
     <string name="title_activity_contact">Contact</string>
     <string name="btn_contact">phone book</string>
+    <string name="waiting">Wait for response...</string>
 </resources>
