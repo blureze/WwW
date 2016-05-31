@@ -28,7 +28,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
         myLocation = new GPSLocation(this);
-
     }
 
     /**
