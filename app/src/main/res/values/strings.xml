@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">WWW</string>
-    <string name="phone_call_button">Call</string>
+    <string name="receiver_button">Receiver</string>
     <string name="make_a_call">Make A Call</string>
     <string name="show_map">Show Map</string>
     <string name="show_map_button">Show Map</string>

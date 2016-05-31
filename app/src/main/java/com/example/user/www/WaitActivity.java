@@ -24,7 +24,8 @@ import java.util.TimerTask;
  */
 
 public class WaitActivity extends AppCompatActivity {
-    private TextView response_tv, test;
+    private TextView response_tv;
+    private Receiver mReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,8 +33,8 @@ public class WaitActivity extends AppCompatActivity {
         setContentView(R.layout.activity_wait);
 
         response_tv = (TextView) findViewById(R.id.text_response);
-        test = (TextView) findViewById(R.id.text_wait);
 
+//        mReceiver = getIntent().getParcelableExtra("receiver");
         new Receive();
     }
 
@@ -44,7 +45,6 @@ public class WaitActivity extends AppCompatActivity {
         private Timer incoming_timer, outgoing_timer;
         private TimerTask timerTask;
         private int counter = 0;
-        private String phone_number;
         private String response;
 
         public Receive() {
@@ -56,29 +56,18 @@ public class WaitActivity extends AppCompatActivity {
                 int lastState = TelephonyManager.CALL_STATE_IDLE;
                 public void onCallStateChanged(int state, String incomingNumber)
                 {
-                    // TODO React to incoming call.
-                    String number = incomingNumber;
                     if(state==TelephonyManager.CALL_STATE_RINGING)
                     {
                         Toast.makeText(getApplicationContext(), "Phone Is Ringing", Toast.LENGTH_LONG).show();
                         startTimer(ringing);
                         lastState = TelephonyManager.CALL_STATE_RINGING;
                     }
-//                    if(state==TelephonyManager.CALL_STATE_OFFHOOK)
-//                    {
-//                        //Toast.makeText(getApplicationContext(),"Phone is Currently in A call", Toast.LENGTH_LONG).show();
-//                        startTimer(dialing);
-//                        lastState = TelephonyManager.CALL_STATE_OFFHOOK;
-//                    }
                     if(state==TelephonyManager.CALL_STATE_IDLE)
                     {
                         //Toast.makeText(getApplicationContext(),"phone is neither ringing nor in a call", Toast.LENGTH_LONG).show();
                         if(lastState == TelephonyManager.CALL_STATE_RINGING) {
                             stopTimer(ringing);
                         }
-//                        else if(lastState == TelephonyManager.CALL_STATE_OFFHOOK) {
-//                            stopTimer(dialing);
-//                        }
                     }
                 }
             };
@@ -95,13 +84,6 @@ public class WaitActivity extends AppCompatActivity {
                 //schedule the timer, after the first 0ms the TimerTask will run every 1sec
                 incoming_timer.schedule(timerTask, 0, 1000);
             }
-            else if (state == dialing) {
-                outgoing_timer = new Timer();
-                //initialize the TimerTask's job
-                initializeTimerTask(state);
-                //schedule the timer, after the first 0ms the TimerTask will run every 1sec
-                outgoing_timer.schedule(timerTask, 0, 1000);
-            }
         }
 
         public void initializeTimerTask(int state) {
@@ -113,19 +95,6 @@ public class WaitActivity extends AppCompatActivity {
                     }
                 };
             }
-            else if(state == dialing) {
-                timerTask = new TimerTask() {
-                    public void run() {
-                        counter++;
-                        Log.d("outgoing", String.valueOf(counter));
-                        if(counter == 7) {     // 6 seconds delay
-                            Log.d("outgoing", "hang up the phone");
-                            // hang up the phone
-                            hangup();
-                        }
-                    }
-                };
-            }
         }
 
         public void stopTimer(int state) {
@@ -133,20 +102,12 @@ public class WaitActivity extends AppCompatActivity {
             if(state == ringing) {
                 if (incoming_timer != null) {
                     Log.d("incoming", String.valueOf(counter));     // 2 seconds delay
-                    //response = response + String.valueOf(counter) + '\n';
-                    response = String.valueOf(counter);
+                    response = response + String.valueOf(counter) + '\n';
                     incoming_timer.cancel();
                     incoming_timer = null;
 
                     /* Add messages */
                     response_tv.setText(response);
-                }
-            }
-            else if(state == dialing) {
-                if (outgoing_timer != null) {
-                    //Log.d("outgoing", String.valueOf(counter));     // 2 seconds delay
-                    outgoing_timer.cancel();
-                    outgoing_timer = null;
                 }
             }
         }

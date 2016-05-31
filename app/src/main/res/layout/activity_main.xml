@@ -13,8 +13,8 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/phone_call_button"
-        android:id="@+id/phone_call_button"
+        android:text="@string/receiver_button"
+        android:id="@+id/receiver_button"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="43dp" />
@@ -24,7 +24,7 @@
         android:layout_height="wrap_content"
         android:text="@string/show_map_button"
         android:id="@+id/showmapbutton"
-        android:layout_above="@+id/phone_call_button"
+        android:layout_above="@+id/receiver_button"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="59dp" />
     <Button

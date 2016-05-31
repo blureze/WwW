@@ -31,6 +31,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -54,6 +55,7 @@ public class ContactActivity extends Activity {
     ContactAdapter adapter;
     public int[] pic = {R.mipmap.pic_1, R.mipmap.pic_2, R.mipmap.pic_3,
             R.mipmap.pic_4};
+    private Receiver mReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +64,10 @@ public class ContactActivity extends Activity {
         lvPhone = (ListView) findViewById(R.id.listPhone);
         fetchContacts();
         new RemoteDataTask().execute();
+
+//        mReceiver = getIntent().getParcelableExtra("receiver");
+//        mReceiver.setStatus("caller");
+//        Log.d("receiver", "yyyyyyyyyyyyyyyy");
     }
 
     public void fetchContacts() {
@@ -321,6 +327,7 @@ public class ContactActivity extends Activity {
 
                             // jump to WaitActivity
                             Intent waiting = new Intent(ContactActivity.this, WaitActivity.class);
+//                            waiting.putExtra("receiver", mReceiver);
                             startActivity(waiting);
                         }
                     }

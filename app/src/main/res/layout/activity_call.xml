@@ -12,7 +12,7 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/phone_call_button"
+        android:text="@string/make_a_call"
         android:id="@+id/call_button"
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true" />
