@@ -11,6 +11,9 @@ import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
+
+import com.skyfishjy.library.RippleBackground;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
@@ -19,8 +22,10 @@ import java.util.TimerTask;
 
 public class MainActivity extends AppCompatActivity {
 
-    private Button receiver_btn, contact_btn, show_btn;
+    private Button receiver_btn;
     private Receiver mReceiver;
+    private Button call_btn, show_btn;
+    private ImageButton contact_btn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,10 +50,14 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(call_intent);
             }
         });
-        contact_btn = (Button) findViewById(R.id.contact_button);
+        final RippleBackground rippleBackground = (RippleBackground)findViewById(R.id.content);
+        rippleBackground.startRippleAnimation();
+
+        contact_btn = (ImageButton) findViewById(R.id.contact_button);
         contact_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                rippleBackground.stopRippleAnimation();
                 Intent call_intent = new Intent(MainActivity.this, ContactActivity.class);
 //                call_intent.putExtra("receiver", mReceiver);
                 startActivity(call_intent);
