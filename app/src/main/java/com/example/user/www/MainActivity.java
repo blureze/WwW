@@ -10,6 +10,8 @@ import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.ImageButton;
 
@@ -22,10 +24,9 @@ import java.util.TimerTask;
 
 public class MainActivity extends AppCompatActivity {
 
-    private Button receiver_btn;
     private Receiver mReceiver;
     private Button call_btn, show_btn;
-    private ImageButton contact_btn;
+    private ImageButton contact_btn, receiver_btn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,12 +34,18 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 //        mReceiver = new Receiver(this);
 
-        receiver_btn = (Button) findViewById(R.id.receiver_button);
+        receiver_btn = (ImageButton) findViewById(R.id.receiver_button);
+        final Animation myRotation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.clockwise);
+        myRotation.setRepeatCount(Animation.INFINITE);
+        receiver_btn.startAnimation(myRotation);
         receiver_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 //                mReceiver.setStatus("receiver");
                 new Receive();
+                setContentView(R.layout.activity_receiver);
+                final RippleBackground rippleBackground = (RippleBackground)findViewById(R.id.content2);
+                rippleBackground.startRippleAnimation();
             }
         });
 
@@ -57,7 +64,6 @@ public class MainActivity extends AppCompatActivity {
         contact_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                rippleBackground.stopRippleAnimation();
                 Intent call_intent = new Intent(MainActivity.this, ContactActivity.class);
 //                call_intent.putExtra("receiver", mReceiver);
                 startActivity(call_intent);
