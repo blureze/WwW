@@ -9,57 +9,32 @@ import android.os.Bundle;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
-import android.view.View;
-import android.widget.Button;
-import android.widget.ImageButton;
+import android.widget.TextView;
+import android.widget.Toast;
 
-import com.skyfishjy.library.RippleBackground;
+import org.w3c.dom.Text;
 
 import java.lang.reflect.Method;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class MainActivity extends AppCompatActivity {
+/***
+ * After the caller send the request to get another person's location, jumps to this Activity and wait for the response.
+ * The Activity will display the ringing time of each incoming phone call.
+ */
 
-    private Button call_btn, show_btn;
-    private ImageButton contact_btn;
-
+public class WaitActivity extends AppCompatActivity {
+    private TextView response_tv, test;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_wait);
 
-        call_btn = (Button) findViewById(R.id.phone_call_button);
-        call_btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent call_intent = new Intent(MainActivity.this, CallActivity.class);
-                startActivity(call_intent);
-            }
-        });
+        response_tv = (TextView) findViewById(R.id.text_response);
+        test = (TextView) findViewById(R.id.text_wait);
 
-        show_btn = (Button) findViewById(R.id.showmapbutton);
-        show_btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent call_intent = new Intent(MainActivity.this, MapActivity.class);
-                startActivity(call_intent);
-            }
-        });
-        final RippleBackground rippleBackground = (RippleBackground)findViewById(R.id.content);
-        rippleBackground.startRippleAnimation();
-
-        contact_btn = (ImageButton) findViewById(R.id.contact_button);
-        contact_btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                rippleBackground.stopRippleAnimation();
-                Intent call_intent = new Intent(MainActivity.this, ContactActivity.class);
-                startActivity(call_intent);
-
-            }
-        });
+        new Receive();
     }
 
     private class Receive {
@@ -70,9 +45,11 @@ public class MainActivity extends AppCompatActivity {
         private TimerTask timerTask;
         private int counter = 0;
         private String phone_number;
+        private String response;
 
         public Receive() {
-            /* count the calling time */
+            response = new String();
+            /*count the calling time*/
             TelephonyManager tm = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
             //final Chronometer myChronometer = (Chronometer)findViewById(R.id.chronometer);
             PhoneStateListener callStateListener = new PhoneStateListener() {
@@ -83,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
                     String number = incomingNumber;
                     if(state==TelephonyManager.CALL_STATE_RINGING)
                     {
-                        // Toast.makeText(getApplicationContext(), "Phone Is Ringing", Toast.LENGTH_LONG).show();
+                        Toast.makeText(getApplicationContext(), "Phone Is Ringing", Toast.LENGTH_LONG).show();
                         startTimer(ringing);
                         lastState = TelephonyManager.CALL_STATE_RINGING;
                     }
@@ -98,7 +75,6 @@ public class MainActivity extends AppCompatActivity {
                         //Toast.makeText(getApplicationContext(),"phone is neither ringing nor in a call", Toast.LENGTH_LONG).show();
                         if(lastState == TelephonyManager.CALL_STATE_RINGING) {
                             stopTimer(ringing);
-                            /* get GPS*/
                         }
 //                        else if(lastState == TelephonyManager.CALL_STATE_OFFHOOK) {
 //                            stopTimer(dialing);
@@ -146,8 +122,6 @@ public class MainActivity extends AppCompatActivity {
                             Log.d("outgoing", "hang up the phone");
                             // hang up the phone
                             hangup();
-                            Intent waiting = new Intent(MainActivity.this, WaitActivity.class);
-                            startActivity(waiting);
                         }
                     }
                 };
@@ -159,8 +133,13 @@ public class MainActivity extends AppCompatActivity {
             if(state == ringing) {
                 if (incoming_timer != null) {
                     Log.d("incoming", String.valueOf(counter));     // 2 seconds delay
+                    //response = response + String.valueOf(counter) + '\n';
+                    response = String.valueOf(counter);
                     incoming_timer.cancel();
                     incoming_timer = null;
+
+                    /* Add messages */
+                    response_tv.setText(response);
                 }
             }
             else if(state == dialing) {
@@ -208,4 +187,5 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 }
+
 
