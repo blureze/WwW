@@ -172,6 +172,7 @@ public class SendActivity extends AppCompatActivity {
                 telephonyEndCall = telephonyClass.getMethod("endCall");
                 telephonyEndCall.invoke(telephonyObject);
 
+                Thread.sleep(3000);
                 isCall = false;
 
             } catch (Exception e) {
