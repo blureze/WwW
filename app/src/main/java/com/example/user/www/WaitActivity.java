@@ -12,9 +12,12 @@ import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import org.w3c.dom.Text;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -43,9 +46,11 @@ public class WaitActivity extends AppCompatActivity {
         private TimerTask timerTask;
         private int counter = 0;
         private String response;
+        private ArrayList<Integer> location;
 
         public Receive() {
             response = new String();
+            location = new ArrayList<Integer>();
             /*count the calling time*/
             TelephonyManager tm = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
             //final Chronometer myChronometer = (Chronometer)findViewById(R.id.chronometer);
@@ -93,11 +98,20 @@ public class WaitActivity extends AppCompatActivity {
             if (incoming_timer != null) {
                 Log.d("incoming", String.valueOf(counter));     // 2 seconds delay
                 response = response + String.valueOf(counter) + '\n';
+                location.add(counter - 2);
                 incoming_timer.cancel();
                 incoming_timer = null;
 
                 /* Add messages */
                 response_tv.setText(response);
+                if(location.size() == 6) {
+                    Intent intent = new Intent(WaitActivity.this, MapActivity.class);
+                    String lat = "2" + String.valueOf(location.get(3)) + "." + String.valueOf(location.get(4)) + String.valueOf(location.get(5));
+                    String lng = "12" + String.valueOf(location.get(0)) + "." + String.valueOf(location.get(1)) + String.valueOf(location.get(2));
+                    intent.putExtra("lat", lat);
+                    intent.putExtra("lng", lng);
+                    startActivity(intent);
+                }
             }
         }
     }
