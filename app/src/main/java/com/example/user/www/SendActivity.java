@@ -16,37 +16,75 @@ import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import java.lang.reflect.Method;
 import java.util.Timer;
 import java.util.TimerTask;
 
 public class SendActivity extends AppCompatActivity {
     private TextView send_tv;
+    protected boolean isCall = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_send);
 
+        // get phone number
         Intent intent = this.getIntent();
         String phone_number = intent.getStringExtra("phone_number");    // get phone number
-        // get GPS -> ArrayList
 
+        // get GPS -> ArrayList
+        GPSLocation gpsLocation = new GPSLocation(this);
+        LatLng myLocation = gpsLocation.userLocation;
+        String lat = String.valueOf(myLocation.latitude);
+        String lng = String.valueOf(myLocation.longitude);
+
+        // ready to call
         Call myCall = new Call(phone_number);
-        /***
-         *  for i = 0 to GPS.length
-         *    myCall.dial(gps.get(i));
-         */
+
+        // send longitude
+        for(int i = 2; i < 6; i++) {
+            if(lng.charAt(i) == '.')    continue;
+            int time = Integer.valueOf(lng.charAt(i))-48;
+            Log.d("qqqq", String.valueOf(time));
+
+            while(myCall.getIsCall());  // it is currently in a call
+
+            Log.d("qqqq", "call");
+            if(time == 0)
+                myCall.dial(17);
+            else
+                myCall.dial(time + 7);
+
+            myCall.startTimer();
+            isCall = true;
+        }
+
+        // send latitude
+        for(int i = 1; i < 5; i++) {
+            if(lat.charAt(i) == '.')    continue;
+            int time = Integer.valueOf(lat.charAt(i))-48;
+            Log.d("qqqq", String.valueOf(time));
+
+            while(myCall.getIsCall());  // it is currently in a call
+
+            Log.d("qqqq", "call");
+            if(time == 0)
+                myCall.dial(17);
+            else
+                myCall.dial(time + 7);
+
+            myCall.startTimer();
+            isCall = true;
+        }
     }
 
-    private class Call {
-        private final int ringing = 1;
-        private final int dialing = 2;
-
-        //        private Button call_btn;
-        private Timer incoming_timer, outgoing_timer;
+    public class Call {
+        private Timer outgoing_timer;
         private TimerTask timerTask;
-        private int counter = 0;
+        private int counter;
         private String phone_number;
         private int calling_time;
 
@@ -60,114 +98,49 @@ public class SendActivity extends AppCompatActivity {
             // ACTION_CALL -> call the number directly without the dialer
             // ACTION_DIAL -> ask users to select an application for calling
             if (ActivityCompat.checkSelfPermission(SendActivity.this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
-                // TODO: Consider calling
-                //    ActivityCompat#requestPermissions
-                // here to request the missing permissions, and then overriding
-                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                //                                          int[] grantResults)
-                // to handle the case where the user grants the permission. See the documentation
-                // for ActivityCompat#requestPermissions for more details.
                 myIntentDial = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + phone_number));
                 return;
             } else {
                 myIntentDial = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + phone_number));
             }
             startActivity(myIntentDial);
+        }
 
-            /*after dialing, count the calling time*/
-            TelephonyManager tm = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
-            //final Chronometer myChronometer = (Chronometer)findViewById(R.id.chronometer);
-            PhoneStateListener callStateListener = new PhoneStateListener() {
-                int lastState = TelephonyManager.CALL_STATE_IDLE;
-                public void onCallStateChanged(int state, String incomingNumber)
-                {
-                    // TODO React to incoming call.
-                    String number=incomingNumber;
-                    if(state==TelephonyManager.CALL_STATE_RINGING)
-                    {
-//                        Toast.makeText(getApplicationContext(), "Phone Is Ringing", Toast.LENGTH_LONG).show();
-                        startTimer(ringing);
-                        lastState = TelephonyManager.CALL_STATE_RINGING;
-                    }
-                    if(state==TelephonyManager.CALL_STATE_OFFHOOK)
-                    {
-                        //Toast.makeText(getApplicationContext(),"Phone is Currently in A call", Toast.LENGTH_LONG).show();
-                        startTimer(dialing);
-                        lastState = TelephonyManager.CALL_STATE_OFFHOOK;
-                    }
-                    if(state==TelephonyManager.CALL_STATE_IDLE)
-                    {
-                        //Toast.makeText(getApplicationContext(),"phone is neither ringing nor in a call", Toast.LENGTH_LONG).show();
-                        if(lastState == TelephonyManager.CALL_STATE_OFFHOOK) {
-                            stopTimer(dialing);
-                        }
-                        else if(lastState == TelephonyManager.CALL_STATE_RINGING) {
-                            stopTimer(ringing);
-                        }
+        public void startTimer() {
+            counter = calling_time;
+            //set a new Timer
+
+            outgoing_timer = new Timer();
+            //initialize the TimerTask's job
+            initializeTimerTask();
+            //schedule the timer, after the first 0ms the TimerTask will run every 1sec
+            outgoing_timer.schedule(timerTask, 0, 1000);
+
+        }
+
+        public void initializeTimerTask() {
+            timerTask = new TimerTask() {
+                public void run() {
+                    counter--;
+                    Log.d("timer", String.valueOf(counter));
+                    if(counter == 0) {     // 6 seconds delay
+                        Log.d("outgoing", "hang up the phone");
+                        stopTimer();
+                        // hang up the phone
+                        hangup();
                     }
                 }
             };
-            tm.listen(callStateListener, PhoneStateListener.LISTEN_CALL_STATE);
         }
 
-        public void startTimer(int state) {
-            counter = 0;
-            //set a new Timer
-            if(state == ringing) {
-                incoming_timer = new Timer();
-                //initialize the TimerTask's job
-                initializeTimerTask(state);
-                //schedule the timer, after the first 0ms the TimerTask will run every 1sec
-                incoming_timer.schedule(timerTask, 0, 1000);
-            }
-            else if (state == dialing) {
-                outgoing_timer = new Timer();
-                //initialize the TimerTask's job
-                initializeTimerTask(state);
-                //schedule the timer, after the first 0ms the TimerTask will run every 1sec
-                outgoing_timer.schedule(timerTask, 0, 1000);
-            }
-        }
-
-        public void initializeTimerTask(int state) {
-            if(state == ringing) {
-                timerTask = new TimerTask() {
-                    public void run() {
-                        counter++;
-                        Log.d("incoming", String.valueOf(counter));
-                    }
-                };
-            }
-            else if(state == dialing) {
-                timerTask = new TimerTask() {
-                    public void run() {
-                        counter++;
-                        Log.d("outgoing", String.valueOf(counter));
-                        if(counter == calling_time) {     // 6 seconds delay
-                            Log.d("outgoing", "hang up the phone");
-                            // hang up the phone
-                            hangup();
-                        }
-                    }
-                };
-            }
-        }
-
-        public void stopTimer(int state) {
+        public void stopTimer() {
             //stop the timer, if it's not already null
-            if(state == ringing) {
-                if (incoming_timer != null) {
-                    Log.d("incoming", String.valueOf(counter));     // 2 seconds delay
-                    incoming_timer.cancel();
-                    incoming_timer = null;
-                }
-            }
-            else if(state == dialing) {
-                if (outgoing_timer != null) {
-                    //Log.d("outgoing", String.valueOf(counter));     // 2 seconds delay
-                    outgoing_timer.cancel();
-                    outgoing_timer = null;
-                }
+            if (outgoing_timer != null) {
+                Log.d("outgoing2", String.valueOf(counter));     // 2 seconds delay
+                outgoing_timer.cancel();
+                timerTask.cancel();
+                outgoing_timer = null;
+                timerTask = null;
             }
         }
 
@@ -199,11 +172,17 @@ public class SendActivity extends AppCompatActivity {
                 telephonyEndCall = telephonyClass.getMethod("endCall");
                 telephonyEndCall.invoke(telephonyObject);
 
+                isCall = false;
+
             } catch (Exception e) {
                 e.printStackTrace();
                 Log.d("error", "FATAL ERROR: could not connect to telephony subsystem");
                 Log.d("error", "Exception object: " + e);
             }
+        }
+
+        public boolean getIsCall() {
+            return isCall;
         }
     }
 }

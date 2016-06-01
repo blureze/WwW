@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import com.skyfishjy.library.RippleBackground;
 
@@ -38,7 +39,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 //                mReceiver.setStatus("receiver");
-                new Receive();
+                //new Receive();
+                Intent call_intent = new Intent(MainActivity.this, SendActivity.class);
+                call_intent.putExtra("phone_number", "0911624707");
+                startActivity(call_intent);
             }
         });
 
@@ -66,17 +70,17 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private class Receive {
+    public class Receive {
         private final int ringing = 1;
         private final int dialing = 2;
 
         private Timer incoming_timer, outgoing_timer;
         private TimerTask timerTask;
         private int counter = 0;
-        private String phone_number;
+
+        public String phone_number;
 
         public Receive() {
-
             TelephonyManager tm = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
             //final Chronometer myChronometer = (Chronometer)findViewById(R.id.chronometer);
             PhoneStateListener callStateListener = new PhoneStateListener() {
@@ -84,36 +88,29 @@ public class MainActivity extends AppCompatActivity {
                 public void onCallStateChanged(int state, String incomingNumber)
                 {
                     // TODO React to incoming call.
-                    phone_number = incomingNumber;
                     if(state==TelephonyManager.CALL_STATE_RINGING)
                     {
                         // Toast.makeText(getApplicationContext(), "Phone Is Ringing", Toast.LENGTH_LONG).show();
-                        startTimer(ringing);
+                        startTimer(ringing, incomingNumber);
                         lastState = TelephonyManager.CALL_STATE_RINGING;
                     }
-//                    if(state==TelephonyManager.CALL_STATE_OFFHOOK)
-//                    {
-//                        //Toast.makeText(getApplicationContext(),"Phone is Currently in A call", Toast.LENGTH_LONG).show();
-//                        startTimer(dialing);
-//                        lastState = TelephonyManager.CALL_STATE_OFFHOOK;
-//                    }
+
                     if(state==TelephonyManager.CALL_STATE_IDLE)
                     {
-                        //Toast.makeText(getApplicationContext(),"phone is neither ringing nor in a call", Toast.LENGTH_LONG).show();
+//                        Toast.makeText(getApplicationContext(), phone_number, Toast.LENGTH_LONG).show();
                         if(lastState == TelephonyManager.CALL_STATE_RINGING) {
                             stopTimer(ringing);
                         }
-//                        else if(lastState == TelephonyManager.CALL_STATE_OFFHOOK) {
-//                            stopTimer(dialing);
-//                        }
                     }
                 }
             };
             tm.listen(callStateListener, PhoneStateListener.LISTEN_CALL_STATE);
         }
 
-        public void startTimer(int state) {
+        public void startTimer(int state, String incomingNumber) {
             counter = 0;
+            phone_number = incomingNumber;
+            Log.d("number", phone_number);
             //set a new Timer
             if(state == ringing) {
                 incoming_timer = new Timer();
@@ -121,13 +118,6 @@ public class MainActivity extends AppCompatActivity {
                 initializeTimerTask(state);
                 //schedule the timer, after the first 0ms the TimerTask will run every 1sec
                 incoming_timer.schedule(timerTask, 0, 1000);
-            }
-            else if (state == dialing) {
-                outgoing_timer = new Timer();
-                //initialize the TimerTask's job
-                initializeTimerTask(state);
-                //schedule the timer, after the first 0ms the TimerTask will run every 1sec
-                outgoing_timer.schedule(timerTask, 0, 1000);
             }
         }
 
@@ -137,19 +127,6 @@ public class MainActivity extends AppCompatActivity {
                     public void run() {
                         counter++;
                         Log.d("incoming", String.valueOf(counter));
-                    }
-                };
-            }
-            else if(state == dialing) {
-                timerTask = new TimerTask() {
-                    public void run() {
-                        counter++;
-                        Log.d("outgoing", String.valueOf(counter));
-                        if(counter == 7) {     // 6 seconds delay
-                            Log.d("outgoing", "hang up the phone");
-                            // hang up the phone
-                            hangup();
-                        }
                     }
                 };
             }
@@ -163,54 +140,14 @@ public class MainActivity extends AppCompatActivity {
                     incoming_timer.cancel();
                     incoming_timer = null;
 
+//                    Log.d("number1", phone_number);
+//                    Toast.makeText(getApplicationContext(), "phone_number", Toast.LENGTH_LONG).show();
                     // get GPS and jump to the SendActivity to send the response
                     Intent sending = new Intent(MainActivity.this, SendActivity.class);
+                    Log.d("number1", phone_number);
                     sending.putExtra("phone_number", phone_number);
                     startActivity(sending);
-//                    onDestroy();
                 }
-            }
-            else if(state == dialing) {
-                if (outgoing_timer != null) {
-                    //Log.d("outgoing", String.valueOf(counter));     // 2 seconds delay
-                    outgoing_timer.cancel();
-                    outgoing_timer = null;
-                }
-            }
-        }
-
-        public void hangup(){
-            try {
-                String serviceManagerName = "android.os.ServiceManager";
-                String serviceManagerNativeName = "android.os.ServiceManagerNative";
-                String telephonyName = "com.android.internal.telephony.ITelephony";
-                Class<?> telephonyClass;
-                Class<?> telephonyStubClass;
-                Class<?> serviceManagerClass;
-                Class<?> serviceManagerNativeClass;
-                Method telephonyEndCall;
-                Object telephonyObject;
-                Object serviceManagerObject;
-                telephonyClass = Class.forName(telephonyName);
-                telephonyStubClass = telephonyClass.getClasses()[0];
-                serviceManagerClass = Class.forName(serviceManagerName);
-                serviceManagerNativeClass = Class.forName(serviceManagerNativeName);
-                Method getService = // getDefaults[29];
-                        serviceManagerClass.getMethod("getService", String.class);
-                Method tempInterfaceMethod = serviceManagerNativeClass.getMethod("asInterface", IBinder.class);
-                Binder tmpBinder = new Binder();
-                tmpBinder.attachInterface(null, "fake");
-                serviceManagerObject = tempInterfaceMethod.invoke(null, tmpBinder);
-                IBinder retbinder = (IBinder) getService.invoke(serviceManagerObject, "phone");
-                Method serviceMethod = telephonyStubClass.getMethod("asInterface", IBinder.class);
-                telephonyObject = serviceMethod.invoke(null, retbinder);
-                telephonyEndCall = telephonyClass.getMethod("endCall");
-                telephonyEndCall.invoke(telephonyObject);
-
-            } catch (Exception e) {
-                e.printStackTrace();
-                Log.d("error", "FATAL ERROR: could not connect to telephony subsystem");
-                Log.d("error", "Exception object: " + e);
             }
         }
     }

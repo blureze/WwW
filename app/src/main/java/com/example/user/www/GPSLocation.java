@@ -17,7 +17,7 @@ public class GPSLocation {
     LocationManager locationMgr;
     String provider;
     Location location;
-    LatLng userLocation;
+    public LatLng userLocation;
     LocationListener locationlsr = new LocationListener() {
         double latitude;
         double longitude;
