@@ -97,8 +97,12 @@ public class WaitActivity extends AppCompatActivity {
             //stop the timer, if it's not already null
             if (incoming_timer != null) {
                 Log.d("incoming", String.valueOf(counter));     // 2 seconds delay
-                response = response + String.valueOf(counter) + '\n';
-                location.add(counter - 2);
+                response = response + String.valueOf(counter-2) + '\n';
+                if(counter -2 == 10)
+                    location.add(0);
+                else
+                    location.add(counter - 2);
+
                 incoming_timer.cancel();
                 incoming_timer = null;
 

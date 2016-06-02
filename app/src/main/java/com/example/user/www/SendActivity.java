@@ -30,7 +30,7 @@ public class SendActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_send);
-
+        Log.d("aaa", "SendActivity");
         // get phone number
         Intent intent = this.getIntent();
         String phone_number = intent.getStringExtra("phone_number");    // get phone number
@@ -53,10 +53,18 @@ public class SendActivity extends AppCompatActivity {
             while(myCall.getIsCall());  // it is currently in a call
 
             Log.d("qqqq", "call");
-            if(time == 0)
-                myCall.dial(17);
-            else
-                myCall.dial(time + 7);
+            if(i == 2) {    // delay 1 sec
+                if(time == 0)
+                    myCall.dial(18);
+                else
+                    myCall.dial(time + 8);
+            }
+            else {
+                if(time == 0)
+                    myCall.dial(17);
+                else
+                    myCall.dial(time + 7);
+            }
 
             myCall.startTimer();
             isCall = true;
@@ -71,11 +79,11 @@ public class SendActivity extends AppCompatActivity {
             while(myCall.getIsCall());  // it is currently in a call
 
             Log.d("qqqq", "call");
+
             if(time == 0)
                 myCall.dial(17);
             else
                 myCall.dial(time + 7);
-
             myCall.startTimer();
             isCall = true;
         }
